@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#f5d9cf" />
+<title>角栓ぬき - PORE PULL v19</title>
+<style>
+:root{
+  --ink:#2b211d; --pink:#eb7390; --pink2:#f4a5b8;
+  --skin1:#efb9a5; --skin2:#f8cfbd; --skin3:#e8aa96;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;color:var(--ink);background:#f3d9cf;overflow:hidden}
+button{font:inherit}
+.app{height:100dvh;max-width:520px;margin:auto;position:relative;overflow:hidden;background:linear-gradient(#f7e4dc,#f0d1c6)}
+.screen{position:absolute;inset:0;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));display:none}
+.screen.active{display:flex}
+#home{flex-direction:column;justify-content:space-between}
+.toprow,.gamebar{display:flex;justify-content:space-between;align-items:center}
+.iconbtn{width:46px;height:46px;border:0;border-radius:16px;background:rgba(255,255,255,.62);box-shadow:0 8px 24px rgba(72,42,32,.12);font-size:22px}
+.hero{text-align:center}
+.nose{width:270px;height:218px;margin:auto;border-radius:46% 46% 54% 54%;position:relative;background:
+radial-gradient(circle at 22% 25%,#80645a 0 1.7px,transparent 2.2px),
+radial-gradient(circle at 38% 44%,#795d53 0 1.5px,transparent 2px),
+radial-gradient(circle at 63% 28%,#775c52 0 1.7px,transparent 2.2px),
+radial-gradient(circle at 72% 53%,#82675b 0 1.6px,transparent 2.1px),
+radial-gradient(circle at 48% 65%,#785b51 0 1.5px,transparent 2px),
+linear-gradient(135deg,var(--skin1),var(--skin2) 58%,var(--skin3));box-shadow:inset 0 0 50px rgba(255,255,255,.42),0 18px 40px rgba(90,48,35,.12)}
+.nose:before,.nose:after{content:"";position:absolute;bottom:20px;width:48px;height:25px;background:#71493f;border-radius:50%;box-shadow:inset 0 5px 8px rgba(0,0,0,.2)}
+.nose:before{left:60px}.nose:after{right:60px}
+h1{font-size:43px;margin:10px 0 0;letter-spacing:.08em}
+.sub{font-weight:800;letter-spacing:.3em;margin-top:2px}
+.tag{margin-top:9px;font-size:16px}
+.play{width:100%;border:0;border-radius:28px;padding:18px;background:linear-gradient(135deg,var(--pink2),var(--pink));color:#fff;font-size:23px;font-weight:900;box-shadow:0 12px 28px rgba(230,100,130,.28)}
+.homegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.small{border:0;border-radius:20px;padding:14px 4px;background:rgba(255,255,255,.72);font-weight:800;box-shadow:0 8px 20px rgba(70,40,30,.08)}
+#game{flex-direction:column;background:linear-gradient(#efc0ad,#f8d5c8)}
+.stage{font-weight:900;font-size:19px}
+.pill{background:rgba(88,57,47,.62);color:#fff;padding:9px 13px;border-radius:15px;font-weight:900}
+.timer{background:rgba(255,255,255,.78);padding:9px 13px;border-radius:15px;font-weight:1000;min-width:78px;text-align:center}
+.timer.danger{animation:timerPulse .55s infinite}
+@keyframes timerPulse{50%{transform:scale(1.08)}}
+.progress{height:8px;border-radius:99px;background:rgba(255,255,255,.45);overflow:hidden;margin-top:9px}
+.progress>div{height:100%;width:0;background:#fff;border-radius:inherit;transition:.25s}
+.skin{position:relative;flex:1;margin:14px 0;border-radius:34px;overflow:hidden;touch-action:none;
+  box-shadow:inset 0 0 75px rgba(90,45,35,.13),0 12px 30px rgba(75,44,34,.12);
+  background:
+    linear-gradient(rgba(225,148,122,.10),rgba(170,92,69,.08)),
+    url('nose-stage17.png') center center / cover no-repeat;
+}
+.skin:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;
+  background:
+    repeating-linear-gradient(17deg,rgba(113,64,51,.025) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(103deg,rgba(255,255,255,.035) 0 1px,transparent 1px 10px);
+  mix-blend-mode:multiply;
+}
+.skin:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 24px 55px rgba(255,239,231,.13),inset 0 -28px 55px rgba(126,67,52,.10);
+}
+.pore{
+  --pull:0; --lift:0px;
+  touch-action:none;
+  position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;touch-action:none;display:grid;place-items:center;z-index:3;
+}
+.tension{
+  position:absolute;left:50%;top:50%;width:92px;height:66px;border-radius:50%;
+  transform:translate(-50%,-50%) translateY(calc(var(--lift) * .48)) scaleX(calc(1 - var(--pull)*.18)) scaleY(calc(1 + var(--pull)*.55));
+  background:radial-gradient(ellipse at 50% 46%,rgba(255,228,216,.22) 0 22%,rgba(176,92,73,.10) 44%,rgba(104,52,43,.045) 58%,transparent 74%);
+  box-shadow:inset 0 -8px 18px rgba(129,67,52,.10),0 -6px 14px rgba(255,237,230,.12);
+  opacity:calc(.08 + var(--pull)*.95); pointer-events:none;z-index:0;transition:opacity .08s linear;
+}
+.rim{
+  position:absolute;
+  left:50%; top:50%;
+  width:var(--capW,18px); height:var(--capH,14px);
+  border-radius:46% 54% 52% 48% / 44% 42% 58% 56%;
+  transform:translate(-50%,-50%) rotate(var(--tilt,0deg));
+  z-index:3;
+  background:
+    radial-gradient(ellipse at 47% 42%,
+      #fffdf2 0 20%,
+      #f7edcf 21% 37%,
+      #e9d5aa 38% 50%,
+      #c7a77e 51% 61%,
+      rgba(125,75,57,.24) 62% 72%,
+      rgba(215,145,124,.18) 73% 82%,
+      transparent 83%);
+  box-shadow:
+    inset 0 .8px 1px rgba(255,255,255,.65),
+    inset 0 -1px 2px rgba(89,56,41,.16),
+    0 0 0 .5px rgba(112,67,52,.08),
+    0 1px 2px rgba(70,40,30,.10);
+  transition:opacity .08s,transform .08s;
+}
+.rim:after{
+  content:"";position:absolute;left:50%;top:50%;width:175%;height:160%;
+  transform:translate(-50%,-50%);border-radius:50%;z-index:-1;
+  background:radial-gradient(ellipse,
+    rgba(255,220,207,.10) 0 24%,
+    rgba(173,92,74,.12) 40%,
+    rgba(136,69,56,.06) 56%,
+    transparent 76%);
+  filter:blur(1px);
+}
+.pore.grabbed .rim{opacity:.28;transform:translate(-50%,-50%) scale(.9)}
+.pore.ready{animation:pulse 1.35s infinite;filter:drop-shadow(0 1px 2px rgba(70,35,28,.16))}
+@keyframes pulse{50%{filter:drop-shadow(0 0 8px rgba(255,255,255,.55))}}
+.plug{
+  position:absolute;
+  left:50%; top:50%;
+  width:var(--plugW,10px);
+  height:var(--plugH,58px);
+  transform:translate(-50%,-100%) scaleY(.04);
+  transform-origin:50% 100%;
+  opacity:0;
+  pointer-events:none;
+  z-index:5;
+  clip-path:polygon(50% 0%,66% 4%,78% 13%,86% 30%,92% 58%,96% 100%,4% 100%,8% 58%,14% 30%,24% 13%,38% 4%);
+  border-radius:52% 48% 40% 43% / 11% 10% 89% 90%;
+  background:
+    radial-gradient(ellipse at 42% 8%,rgba(255,255,255,.95) 0 8%,rgba(255,255,255,.45) 9% 16%,transparent 22%),
+    radial-gradient(ellipse at 62% 30%,rgba(255,255,255,.34) 0 10%,transparent 26%),
+    linear-gradient(90deg,
+      #c9b48c 0%,
+      #ead9b5 13%,
+      #f7edcf 27%,
+      #fff8df 44%,
+      #fffdf0 52%,
+      #f7edcc 67%,
+      #e5d0a7 82%,
+      #b99d72 100%);
+  box-shadow:
+    inset 1px 0 2px rgba(255,255,255,.34),
+    inset -1px 0 2px rgba(104,73,44,.12);
+  filter:drop-shadow(0 1px 1px rgba(57,31,23,.18));
+}
+
+/* 角栓カラー */
+.pore.plug-cream .plug{
+  background:radial-gradient(ellipse at 44% 8%,rgba(255,255,255,.98) 0 9%,transparent 20%),
+  linear-gradient(90deg,#eadfc5,#fff7df 28%,#fffdf2 52%,#efe2c5 78%,#d6c19c);
+}
+.pore.plug-brown .plug{
+  background:radial-gradient(ellipse at 45% 8%,rgba(255,255,255,.54) 0 7%,transparent 18%),
+  linear-gradient(90deg,#7f5839,#b6875d 24%,#d4aa78 48%,#c08d60 72%,#704a31);
+}
+.pore.plug-darktip .plug{
+  background:
+    linear-gradient(to bottom,#34241c 0 10%,#72533d 11% 16%,transparent 17%),
+    linear-gradient(90deg,#d9c8a1,#f6e9c9 28%,#fff8df 52%,#e7d2a8 78%,#bea37d);
+}
+.pore.plug-gold .plug{
+  background:linear-gradient(90deg,#b78a4e,#dbb66f 22%,#f4d99a 48%,#eac581 72%,#a9763f);
+}
+.pore.plug-gray .plug{
+  background:linear-gradient(90deg,#9b927e,#c9bea3 24%,#e9dfc5 50%,#bdb39c 76%,#817968);
+}
+
+/* 角栓の形 */
+.pore.shape-straight .plug{border-radius:48% 52% 38% 42% / 13% 13% 87% 87%;}
+.pore.shape-wavy .plug{
+  border-radius:60% 40% 56% 44% / 18% 14% 82% 86%;
+  transform-origin:50% 100%;
+}
+.pore.shape-curly .plug{
+  border-radius:60% 40% 70% 30% / 18% 14% 86% 82%;
+  clip-path:polygon(49% 0%,68% 4%,78% 13%,70% 28%,88% 42%,72% 58%,90% 73%,84% 100%,16% 100%,12% 72%,28% 56%,12% 40%,28% 24%,34% 8%);
+}
+.pore.shape-soft .plug{
+  border-radius:58% 42% 64% 36% / 20% 16% 84% 80%;
+  filter:drop-shadow(0 1px 1px rgba(57,31,23,.12)) blur(.08px);
+}
+.pore.black .plug{background:radial-gradient(ellipse at 44% 9%,rgba(255,255,255,.75) 0 7%,transparent 19%),linear-gradient(90deg,#8c6b4b,#b99a70 20%,#d5bc8c 42%,#ead9ad 56%,#b69165 78%,#765337)}
+.pore.white .plug{background:radial-gradient(ellipse at 44% 9%,rgba(255,255,255,.98) 0 9%,transparent 20%),linear-gradient(90deg,#e9dcb9,#f9efd2 24%,#fffbe6 45%,#fffef4 55%,#f1e2bf 78%,#d7bf96)}
+.pore.grabbed .plug{opacity:1}
+.pore.primed .plug{opacity:1}
+.pore.primed .rim{opacity:.34;transform:translate(-50%,-50%) scale(.92)}
+.pore.squeezing .tension{
+  opacity:.95;
+  transform:translate(-50%,-50%) scaleX(.62) scaleY(1.20);
+}
+.pore.primed:after{
+  content:"READY";
+  position:absolute;left:50%;top:calc(50% + 27px);
+  transform:translateX(-50%);
+  font-size:8px;font-weight:900;letter-spacing:.08em;
+  color:rgba(92,54,42,.58);pointer-events:none;
+}
+
+.hole{
+  position:absolute;
+  left:50%; top:50%;
+  width:var(--holeW,20px); height:var(--holeH,14px);
+  transform:translate(-50%,-50%) scale(.15) rotate(var(--tilt,0deg));
+  border-radius:46% 54% 50% 50% / 43% 47% 53% 57%;
+  opacity:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 47% 45%,
+      #0d0908 0 17%,
+      #261915 18% 28%,
+      #4e3328 29% 39%,
+      #80563f 40% 50%,
+      #b07c61 51% 61%,
+      rgba(219,151,130,.46) 62% 74%,
+      rgba(246,196,181,.18) 75% 82%,
+      transparent 83%);
+  box-shadow:
+    inset 0 3px 5px rgba(13,6,5,.62),
+    inset 0 -1px 2px rgba(255,222,205,.11),
+    0 0 0 .6px rgba(102,53,44,.13),
+    0 1px 2px rgba(68,34,28,.10);
+}
+.pore.extracted .rim{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+.pore.extracted .tension{opacity:.16;transform:translate(-50%,-50%) scale(1)}
+.pore.grabbed .hole{opacity:0}
+.pore.extracted .hole{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(var(--tilt,0deg));transition:.13s cubic-bezier(.1,1.25,.2,1.35)}
+.pore.extracted .hole{animation:holePop .38s cubic-bezier(.15,1.35,.25,1)}
+@keyframes holePop{0%{transform:translate(-50%,-50%) scale(.15)}55%{transform:translate(-50%,-50%) scale(1.28)}100%{transform:translate(-50%,-50%) scale(1.08)}}
+.pore.injured .hole:after{
+  content:"";position:absolute;left:58%;top:58%;width:7px;height:10px;border-radius:55% 55% 65% 65%;
+  background:radial-gradient(circle at 45% 28%,#e95c5c 0 18%,#a51f2d 55%,#71131d 100%);
+  box-shadow:0 2px 4px rgba(91,13,20,.25);
+  animation:bloodDrop .55s ease-out;
+}
+@keyframes bloodDrop{0%{opacity:0;transform:translateY(-3px) scale(.4)}45%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:.9;transform:translateY(3px) scale(.9)}}
+.hole.shrink{animation:shrinkHole 6s ease forwards}
+@keyframes shrinkHole{0%,45%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(.68);opacity:.78}}
+.hint{text-align:center;background:rgba(103,68,56,.84);color:white;padding:12px 10px;border-radius:19px;font-weight:800}
+.burst{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:43px;font-weight:1000;color:white;text-shadow:0 3px 12px rgba(80,40,30,.35);opacity:0;pointer-events:none;z-index:8}
+.burst.show{animation:pop .7s ease}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}100%{opacity:0;transform:translate(-50%,-70%) scale(.95)}}
+.nextWrap{display:none;position:absolute;inset:0;background:rgba(73,45,36,.28);backdrop-filter:blur(4px);z-index:20;align-items:center;justify-content:center}
+.nextCard{width:min(86%,360px);background:rgba(255,250,247,.96);border-radius:28px;padding:24px;text-align:center;box-shadow:0 18px 45px rgba(64,36,28,.22)}
+.nextCard h3{font-size:28px;margin:0 0 8px}
+.nextCard p{margin:0 0 18px}
+.nextBtn{width:100%;border:0;border-radius:22px;padding:15px;background:linear-gradient(135deg,var(--pink2),var(--pink));color:white;font-weight:900;font-size:19px}
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:#2f231f;color:white;padding:11px 15px;border-radius:99px;opacity:0;transition:.2s;z-index:30;white-space:nowrap;font-weight:800}
+.toast.show{opacity:1}
+.badge{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.65);padding:7px 10px;border-radius:99px;font-weight:900;font-size:12px;z-index:7}
+</style>
+</head>
+<body>
+<div class="app">
+<section id="home" class="screen active">
+  <div class="toprow">
+    <button class="iconbtn" id="soundBtn">🔊</button>
+    <div style="font-weight:900">🪙 <span id="coinHome">0</span></div>
+  </div>
+  <div class="hero">
+    <div class="nose"></div>
+    <h1>角栓ぬき</h1><div class="sub">PORE PULL</div>
+    <div class="tag">にゅる〜、スポン！</div>
+  </div>
+  <div>
+    <button class="play" id="playBtn">プレイする</button>
+    <div class="homegrid">
+      <button class="small">📖<br>図鑑</button>
+      <button class="small">⭐<br>チャレンジ</button>
+      <button class="small">🛒<br>ショップ</button>
+    </div>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="gamebar">
+    <button class="iconbtn" id="backBtn">←</button>
+    <div class="stage">ステージ <span id="stageNo">1</span><br><small id="difficulty" style="font-size:11px;opacity:.7">EASY</small></div>
+    <div class="timer">⏱ <span id="timeLeft">30.0</span></div>
+    <div class="pill">スコア <span id="score">0</span></div>
+  </div>
+  <div class="progress"><div id="prog"></div></div>
+  <div class="skin" id="skin">
+    <div class="badge">👃 鼻　🪙 <span id="coinGame">0</span></div>
+    <div id="pores"></div>
+    <div class="burst" id="burst">スポン！</div>
+  </div>
+  <div class="hint" id="hint">毛穴の左右に2本指を置いて、内側へギュッ！</div>
+
+  <div class="nextWrap" id="nextWrap">
+    <div class="nextCard">
+      <h3 id="resultTitle">ステージクリア！✨</h3>
+      <p id="resultText">全部抜けた！次は少し難しくなるよ。</p>
+      <button class="nextBtn" id="nextBtn">次のステージへ</button>
+    </div>
+  </div>
+</section>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const state={
+  coins:+(localStorage.getItem('poreCoinsV4')||0),
+  sound:localStorage.getItem('poreSoundV4')!=='off'
+};
+let stage=1,score=0,removed=0,total=0,active=null,startY=0,audioCtx=null,timerId=null,timeLeft=30,stageEnded=false;
+
+function ensureAudio(){
+  if(!state.sound)return;
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+document.addEventListener('pointerdown',ensureAudio,{once:true});
+
+function playPop(size=1){
+  if(!state.sound)return; ensureAudio(); if(!audioCtx)return;
+  const now=audioCtx.currentTime;
+
+  // high "pyuun!" swoop
+  const osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+  osc.type='sine';
+  const start=size<.9?950:(size>1.15?720:840);
+  const peak=size<.9?1450:(size>1.15?1080:1260);
+  const end=size<.9?620:(size>1.15?460:540);
+  osc.frequency.setValueAtTime(start,now);
+  osc.frequency.exponentialRampToValueAtTime(peak,now+.055);
+  osc.frequency.exponentialRampToValueAtTime(end,now+.20);
+  g.gain.setValueAtTime(.0001,now);
+  g.gain.exponentialRampToValueAtTime(.10,now+.012);
+  g.gain.exponentialRampToValueAtTime(.0001,now+.22);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start(now);osc.stop(now+.23);
+
+  const air=audioCtx.createOscillator(),ag=audioCtx.createGain();
+  air.type='triangle';
+  air.frequency.setValueAtTime(start*1.35,now);
+  air.frequency.exponentialRampToValueAtTime(end*1.3,now+.11);
+  ag.gain.setValueAtTime(.035,now);
+  ag.gain.exponentialRampToValueAtTime(.0001,now+.12);
+  air.connect(ag).connect(audioCtx.destination);
+  air.start(now);air.stop(now+.13);
+}
+
+function strongVibrate(kind='pull'){
+  if(!navigator.vibrate)return;
+  try{
+    navigator.vibrate(0);
+    if(kind==='injury'){
+      navigator.vibrate([55,25,55,25,70]);
+    }else if(kind==='long'){
+      navigator.vibrate([70,25,90,25,120]);
+    }else{
+      navigator.vibrate([60,22,80,22,95]);
+    }
+  }catch(_){}
+}
+
+function playStretch(amount=.4){
+  if(!state.sound)return;ensureAudio();if(!audioCtx)return;
+  const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+  osc.type='sine';osc.frequency.setValueAtTime(120+amount*30,now);osc.frequency.exponentialRampToValueAtTime(86,now+.05);
+  g.gain.setValueAtTime(.015,now);g.gain.exponentialRampToValueAtTime(.0001,now+.055);
+  osc.connect(g).connect(audioCtx.destination);osc.start(now);osc.stop(now+.06);
+}
+function save(){
+  localStorage.setItem('poreCoinsV4',state.coins);
+  localStorage.setItem('poreSoundV4',state.sound?'on':'off');
+  $('#coinHome').textContent=state.coins;$('#coinGame').textContent=state.coins;
+  $('#soundBtn').textContent=state.sound?'🔊':'🔇';
+}
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),900)}
+
+
+function stageTime(n){
+  return Math.max(18,30-(n-1)*1.5);
+}
+
+function stopTimer(){
+  if(timerId){clearInterval(timerId);timerId=null;}
+}
+
+function renderTimer(){
+  const el=$('#timeLeft');
+  if(!el)return;
+  el.textContent=timeLeft.toFixed(1);
+  el.parentElement.classList.toggle('danger',timeLeft<=5 && !stageEnded);
+}
+
+function startTimer(){
+  stopTimer();
+  timeLeft=stageTime(stage);
+  stageEnded=false;
+  renderTimer();
+  const started=performance.now();
+  const initial=timeLeft;
+  timerId=setInterval(()=>{
+    if(stageEnded)return;
+    timeLeft=Math.max(0,initial-(performance.now()-started)/1000);
+    renderTimer();
+    if(timeLeft<=0){
+      timeLeft=0;renderTimer();timeUp();
+    }
+  },50);
+}
+
+function timeUp(){
+  if(stageEnded)return;
+  stageEnded=true;stopTimer();
+  active=null;
+  document.querySelectorAll('.pore').forEach(p=>p.style.pointerEvents='none');
+  $('#resultTitle').textContent='タイムアップ！⏱';
+  $('#resultText').textContent=`${removed}/${total}個 抜けた！ スコア ${score}`;
+  $('#nextBtn').textContent='もう一回！';
+  $('#nextWrap').style.display='flex';
+  $('#hint').textContent='⏱ タイムアップ！';
+}
+
+
+function stageTheme(n){
+  const themes=[
+    {name:'ミルキー', colors:['plug-cream','plug-darktip'], shapes:['shape-straight','shape-soft']},
+    {name:'ブラウン', colors:['plug-brown','plug-darktip','plug-gold'], shapes:['shape-wavy','shape-soft']},
+    {name:'ミックス', colors:['plug-cream','plug-brown','plug-darktip','plug-gold','plug-gray'], shapes:['shape-straight','shape-wavy','shape-curly','shape-soft']}
+  ];
+  return themes[(n-1)%themes.length];
+}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function difficultyFor(n){
+  if(n<=2)return {name:'EASY', safeMin:.30, safeMax:1.20, penalty:50};
+  if(n<=5)return {name:'NORMAL', safeMin:.36, safeMax:1.08, penalty:80};
+  return {name:'HARD', safeMin:.42, safeMax:.98, penalty:110};
+}
+
+function stageConfig(n){
+  const count=Math.min(6+n*2,14);
+  return {count, minLen:18+n, maxLen:44+n*2};
+}
+function rand(a,b){return a+Math.random()*(b-a)}
+function newStage(){
+  const cfg=stageConfig(stage);
+  removed=0; total=cfg.count; score=0;
+  $('#stageNo').textContent=stage;
+  const theme=stageTheme(stage);
+  $('#difficulty').textContent=`${difficultyFor(stage).name}・${theme.name}`;
+  $('#score').textContent=0; $('#prog').style.width='0%';
+  $('#nextWrap').style.display='none'; $('#pores').innerHTML='';
+  $('#resultTitle').textContent='ステージクリア！✨';
+  $('#resultText').textContent='全部抜けた！残り時間もボーナスになるよ。';
+  $('#nextBtn').textContent='次のステージへ';
+  for(let i=0;i<cfg.count;i++){
+    const p=document.createElement('div');p.className='pore ready';
+    p.style.left=rand(12,88)+'%';p.style.top=rand(14,84)+'%';
+
+    const size=rand(.72,1.38);
+    const rareLong=Math.random()<0.08;
+    const len=rareLong ? rand(95+stage*4,145+stage*6) : rand(cfg.minLen*1.25,cfg.maxLen*1.45);
+    const width=rand(5.8,11.8)*size;
+    p.dataset.size=size.toFixed(2);
+    p.dataset.need=Math.round(rand(58,90)+len*.18);
+
+    if(Math.random()<.14)p.classList.add('black');
+    else if(Math.random()<.16)p.classList.add('white');
+
+    // ステージごとに角栓の色・形をランダム化
+    const colorPool=theme.colors;
+    const shapePool=theme.shapes;
+    p.classList.add(pick(colorPool));
+    p.classList.add(pick(shapePool));
+    p.dataset.wave=(Math.random()*.9-.45).toFixed(2);
+
+    const holeW=Math.max(18,Math.round(width*1.55));
+    const holeH=Math.max(13,Math.round(width*1.06));
+    p.style.setProperty('--plugW',`${width}px`);
+    p.style.setProperty('--plugH',`${len}px`);
+    p.style.setProperty('--capW',`${Math.max(8.5,width*.72)}px`);
+    p.style.setProperty('--capH',`${Math.max(7,width*.54)}px`);
+    p.style.setProperty('--holeW',`${holeW}px`);
+    p.style.setProperty('--holeH',`${holeH}px`);
+    p.style.setProperty('--tilt',`${rand(-13,13).toFixed(1)}deg`);
+    p.innerHTML=`<div class="tension"></div><div class="rim"></div><div class="hole"></div><div class="plug"></div>`;
+    bindPore(p);$('#pores').appendChild(p);
+  }
+  $('#hint').textContent='毛穴の左右に2本指を置いて、内側へギュッ！';
+  startTimer();
+}
+function finishStage(){
+  if(stageEnded)return;
+  stageEnded=true;stopTimer();
+  const timeBonus=Math.round(timeLeft*20);
+  score+=timeBonus;
+  state.coins+=20+stage*5+Math.round(timeLeft/2); save();
+  $('#score').textContent=score;
+  $('#hint').textContent='✨ 全部抜けた！';
+  $('#resultTitle').textContent='ステージクリア！✨';
+  $('#resultText').textContent=`残り ${timeLeft.toFixed(1)}秒！ タイムボーナス +${timeBonus}`;
+  $('#nextBtn').textContent='次のステージへ';
+  setTimeout(()=>$('#nextWrap').style.display='flex',350);
+}
+
+function bindPore(p){
+  let pullId=null, pullStartY=0, pullStartTime=0, lastTick=0;
+
+  function setPreReveal(amount){
+    const plug=p.querySelector('.plug');
+    const r=Math.max(.04,Math.min(.48,amount));
+    plug.style.transition='.08s';
+    plug.style.transform=`translate(-50%,-100%) scaleY(${r})`;
+    plug.style.opacity = r>.08 ? '1' : '0';
+  }
+
+  p._setPreReveal=setPreReveal;
+
+  p.addEventListener('pointerdown',e=>{
+    if(p.dataset.done||stageEnded)return;
+    if(e.pointerType==='touch' && window._squeezingNow) return;
+    if(!p.dataset.primed){
+      toast('まず2本指で毛穴を左右からギュッ！');
+      return;
+    }
+    ensureAudio();
+    active=p;
+    pullId=e.pointerId;
+    pullStartY=e.clientY;
+    pullStartTime=performance.now();
+    try{p.setPointerCapture(e.pointerId)}catch(_){}
+    p.classList.add('grabbed');
+  });
+
+  p.addEventListener('pointermove',e=>{
+    if(active!==p || pullId!==e.pointerId)return;
+    const dy=Math.min(0,e.clientY-pullStartY);
+    const dist=Math.abs(dy);
+    const plug=p.querySelector('.plug');
+    const reveal=Math.max(.28,Math.min(1,.28+dist/Math.max(34,Number(p.dataset.need)*.72)));
+    const elastic=1+Math.min(1.12,dist/140);
+    const skinny=1-Math.min(.30,dist/340);
+    const tilt=(Number(p.style.getPropertyValue('--tilt').replace('deg',''))||0);
+    const wave=Number(p.dataset.wave||0);
+    const bend=tilt*.35 + wave*18*Math.min(1,dist/90);
+    plug.style.transition='none';
+    plug.style.transform=`translate(-50%,-100%) rotate(${bend}deg) skewX(${wave*7}deg) scale(${skinny},${reveal*elastic})`;
+
+    const pull=Math.min(1,dist/95),lift=Math.min(18,dist*.15);
+    p.style.setProperty('--pull',pull.toFixed(3));
+    p.style.setProperty('--lift',(-lift)+'px');
+    if(dist-lastTick>24){playStretch(pull);lastTick=dist}
+  });
+
+  p.addEventListener('pointerup',e=>{
+    if(active!==p || pullId!==e.pointerId)return;
+    const dy=e.clientY-pullStartY;
+    const dist=Math.abs(Math.min(0,dy));
+    const elapsed=Math.max(1,performance.now()-pullStartTime);
+    const velocity=dist/elapsed;
+    const size=Number(p.dataset.size);
+    const flicked = dy < -38 && (velocity > .22 || dist > 65);
+
+    if(flicked){
+      p.dataset.done='1';
+      p.classList.remove('ready','primed','grabbed');
+      p.classList.add('extracted');
+      p.style.setProperty('--pull','0');
+      p.style.setProperty('--lift','0px');
+
+      const plug=p.querySelector('.plug');
+      plug.style.transition='.10s cubic-bezier(.2,1.25,.25,1)';
+      plug.style.transform='translate(-50%,-100%) scale(.76,1.72)';
+      plug.style.opacity='1';
+      setTimeout(()=>{
+        p.querySelector('.rim').style.opacity='0';
+        plug.style.transition='.34s cubic-bezier(.15,.9,.18,1.12)';
+        plug.style.transform='translate(-50%,calc(-100% - 132px)) scale(1.08,.90) rotate(4deg)';
+      },75);
+      setTimeout(()=>{plug.style.opacity='0'},680);
+
+      p.querySelector('.hole').classList.add('shrink');
+      playPop(size);
+      strongVibrate(size>1.15?'long':'pull');
+
+      removed++;
+      const injured=p.dataset.injured==='1';
+      const gain=Math.round(90*size+20);
+      score+=gain;
+      state.coins+=Math.max(3,Math.round(5*size));
+      save();
+      $('#score').textContent=score;
+      $('#prog').style.width=(removed/total*100)+'%';
+      $('#burst').textContent=p.dataset.injured==='1'?'いたっ！':(size>1.18?'ぴゅーーん！':size<.86?'ぴゅん！':'ぴゅーん！');
+      $('#burst').classList.remove('show');
+      void $('#burst').offsetWidth;
+      $('#burst').classList.add('show');
+      $('#hint').textContent=removed===total?'✨ 全部抜けた！':'次も2本指で押し出してからシュッ！';
+      if(removed===total)finishStage();
+    }else{
+      p.classList.remove('grabbed');
+      p.style.setProperty('--pull','0');
+      p.style.setProperty('--lift','0px');
+      setPreReveal(.28);
+      toast('上にシュッ！で抜けるよ');
+    }
+
+    active=null;
+    pullId=null;
+  });
+}
+
+// ===== Two-finger squeeze is handled on the whole skin area =====
+// This makes it easy to put one finger on each side of a tiny pore.
+let squeezePore=null;
+let squeezeStartGap=0;
+let squeezeBest=0;
+window._squeezingNow=false;
+
+function nearestPoreTo(x,y,maxDist=72){
+  let best=null, bestD=maxDist;
+  document.querySelectorAll('.pore:not(.extracted)').forEach(p=>{
+    const r=p.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const d=Math.hypot(x-cx,y-cy);
+    if(d<bestD){best=p;bestD=d;}
+  });
+  return best;
+}
+
+const skinEl=document.getElementById('skin');
+
+['gesturestart','gesturechange','gestureend'].forEach(type=>{
+  document.addEventListener(type,e=>{
+    if(e.target.closest?.('#skin')) e.preventDefault();
+  },{passive:false});
+});
+
+skinEl.addEventListener('touchstart',e=>{
+  if(e.touches.length!==2)return;
+  e.preventDefault();
+
+  const a=e.touches[0], b=e.touches[1];
+  const midX=(a.clientX+b.clientX)/2;
+  const midY=(a.clientY+b.clientY)/2;
+  const gap=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+
+  squeezePore=nearestPoreTo(midX,midY,78);
+  if(!squeezePore || squeezePore.dataset.done){
+    squeezePore=null;
+    return;
+  }
+
+  squeezeStartGap=gap;
+  squeezeBest=0;
+  window._squeezingNow=true;
+  squeezePore.classList.add('squeezing');
+  $('#hint').textContent='そのまま2本の指を毛穴へ近づけてギュッ！';
+},{passive:false});
+
+skinEl.addEventListener('touchmove',e=>{
+  if(e.touches.length!==2 || !squeezePore)return;
+  e.preventDefault();
+
+  const a=e.touches[0], b=e.touches[1];
+  const gap=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  const closed=Math.max(0,squeezeStartGap-gap);
+
+  // Easier threshold for iPhone: about 12-28 px is enough.
+  const amount=Math.max(0,Math.min(1,closed/24));
+  squeezeBest=Math.max(squeezeBest,amount);
+
+  squeezePore.style.setProperty('--pull',(amount*.38).toFixed(3));
+  squeezePore.dataset.squeezeAmount=amount.toFixed(3);
+  squeezePore._setPreReveal?.(.05+amount*.43);
+
+  const diff=difficultyFor(stage);
+  if(amount>Math.min(1.18,diff.safeMax+.12) && !squeezePore.dataset.injured){
+    squeezePore.dataset.injured='1';
+    squeezePore.classList.add('injured');
+    score=Math.max(0,score-diff.penalty);
+    $('#score').textContent=score;
+    strongVibrate('injury');
+    toast(`かなり強すぎ！ -${diff.penalty}点`);
+    $('#hint').textContent='⚠️ 強く押しすぎ！やさしく押し出そう';
+  }
+  if(amount>diff.safeMin && !squeezePore.dataset.primed){
+    squeezePore.dataset.primed='1';
+    squeezePore.classList.add('primed');
+    squeezePore._setPreReveal?.(.42);
+    navigator.vibrate?.(28);
+    $('#hint').textContent='むにゅ〜っ！出た！1本指で上にシュッ！';
+  }
+},{passive:false});
+
+skinEl.addEventListener('touchend',e=>{
+  if(!squeezePore)return;
+  if(e.touches.length<2){
+    squeezePore.classList.remove('squeezing');
+    squeezePore.style.setProperty('--pull','0');
+    if(squeezePore.dataset.primed){
+      squeezePore._setPreReveal?.(.42);
+    }else{
+      squeezePore._setPreReveal?.(.04);
+      $('#hint').textContent='毛穴の左右に2本指を置いて、内側へギュッ！';
+    }
+    squeezePore=null;
+    squeezeStartGap=0;
+    squeezeBest=0;
+    setTimeout(()=>window._squeezingNow=false,80);
+  }
+},{passive:false});
+
+skinEl.addEventListener('touchcancel',e=>{
+  if(squeezePore){
+    squeezePore.classList.remove('squeezing');
+    squeezePore.style.setProperty('--pull','0');
+    squeezePore=null;
+  }
+  window._squeezingNow=false;
+},{passive:false});
+
+$('#playBtn').onclick=()=>{ensureAudio();stage=1;newStage();show('#game')};
+$('#nextBtn').onclick=()=>{
+  const wasTimeUp=$('#resultTitle').textContent.includes('タイムアップ');
+  if(!wasTimeUp)stage++;
+  newStage();
+};
+$('#backBtn').onclick=()=>{stopTimer();stageEnded=true;show('#home')};
+$('#soundBtn').onclick=()=>{state.sound=!state.sound;save();toast(state.sound?'効果音 ON 🔊':'効果音 OFF 🔇')};
+save();
+</script>
+</body>
+</html>
